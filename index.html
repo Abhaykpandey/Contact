@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact List with Search</title>
+    <style>
+    body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0eded;
+            background-image: url('lpu.jpeg');
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #contactApp {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%; /* Adjusted width for responsiveness */
+            max-width: 480px; /* Added max-width for larger screens */
+            text-align: center;
+        }
+
+        #searchInput {
+            padding: 8px;
+            width: calc(100% - 16px);
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #contactList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .contactItem {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .contactItem:hover {
+            background-color: #f0f0f0;
+        }
+
+        .noResults {
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Media queries for responsiveness */
+        @media only screen and (min-width: 600px) {
+            #contactApp {
+                width: 60%;
+            }
+        }
+
+        @media only screen and (min-width: 768px) {
+            #contactApp {
+                width: 50%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>LPU CONTACT LIST THROUGH REGISTRATION NUMBER</h1>
+    <div id="contactApp">
+        <h1>Contact List</h1>
+        <input type="text" id="searchInput" placeholder="Search by Registration Number" oninput="searchContacts()">
+        <ul id="contactList"></ul>
+        <p id="noResults" class="noResults" style="display: none;">No results found.</p>
+    </div>
+
+    <script>
+        // Sample contact data
+        const contacts = [
+        { registrationNumber: '12002407', name: 'Ankur Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7992450578' },
+        { registrationNumber: '12007110', name: 'Raj Kumar Saw', streamName: 'CSE/IT - B.Tech', contactNo: '8789193207' },
+        { registrationNumber: '12015052', name: 'Bipul Kumar Singh', streamName: 'CSE/IT - B.Tech',contactNo: '8292638309' },
+        { registrationNumber: '12007145', name: 'Km Riya Patel', streamName: 'CSE/IT - B.Tech', contactNo: '8957218124' },
+        { registrationNumber: '12015331', name: 'Shreya Shrut', streamName: 'CSE/IT - B.Tech', contactNo: '7973219400' },
+
+        { registrationNumber: '12017463', name: 'Ankit Sharma', streamName: 'CSE/IT - B.Tech', contactNo: '8942012908' },
+        { registrationNumber: '12017523', name: 'Aswin Mathew John', streamName: 'CSE/IT - B.Tech', contactNo: '7306569893' },
+        { registrationNumber: '12018726', name: ' Rahul Bhola', streamName: 'CSE/IT - B.Tech', contactNo: '8283041140' },
+        { registrationNumber: '12019319', name: 'Bandaru Neeraj', streamName: 'CSE/IT - B.Tech', contactNo: '9553611652' },
+        { registrationNumber: '12101566 ', name: ' Nikhil Gupta', streamName: 'CSE/IT - B.Tech', contactNo: '6394363228' },
+       
+        { registrationNumber: '12017463', name: 'Prashant Kumar Solanki', streamName: 'CSE/IT - B.Tech', contactNo: '8303092217' },
+        { registrationNumber: '12017523', name: 'Varun Maheshwari', streamName: 'CSE/IT - B.Tech', contactNo: '9627505807' },
+        { registrationNumber: '12018726', name: 'Srishti Dwivedi', streamName: 'CSE/IT - B.Tech', contactNo: '9129076729' },
+        { registrationNumber: '12019319', name: 'Anurag Anand', streamName: 'CSE/IT - B.Tech', contactNo: '7352954855' },
+        { registrationNumber: '12101566', name: 'Koushik Dey', streamName: 'CSE/IT - B.Tech', contactNo: '6370182716' },
+        
+
+        { registrationNumber: '11905259', name: 'Sheekha Mahapatro', streamName: 'CAP - MCA', contactNo: '8700650140' },
+        { registrationNumber: '11909335', name: 'Kartik Soni', streamName: 'CAP - MCA', contactNo: '7508191944' },
+        { registrationNumber: '11917652', name: 'Anurag Kumar', streamName: 'CAP - MCA', contactNo: '7217674436' },
+        { registrationNumber: '12001477', name: 'Punyakrit Singh Makhni', streamName: 'CSE/IT - B.Tech', contactNo: '6239668383' },
+        { registrationNumber: '12001493', name: 'Reejo Joseph', streamName: 'CSE/IT - B.Tech', contactNo: '6284819728' },
+        { registrationNumber: '12001880', name: 'Abhishek Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '7903071167' },
+        { registrationNumber: '12002121', name: 'Harshita Sharma', streamName: 'CSE/IT - B.Tech', contactNo: '8303242439' },
+        { registrationNumber: '12002128', name: 'Donthireddy Vennela', streamName: 'CSE/IT - B.Tech', contactNo: '8712356204' },
+        { registrationNumber: '12002623', name: 'Sourav Meher', streamName: 'CSE/IT - B.Tech', contactNo: '9078060010' },
+        { registrationNumber: '12002794', name: 'Lakee Mangal', streamName: 'CSE/IT - B.Tech', contactNo: '9352782063' },
+
+        { registrationNumber: '12002820', name: 'Abhay Kumar Singh', streamName: 'CSE/IT - B.Tech', contactNo: '7388364833' },
+  { registrationNumber: '12002980', name: 'Amartya Sen', streamName: 'CSE/IT - B.Tech', contactNo: '9821020837' },
+  { registrationNumber: '12003236', name: 'Abhinav Srivastava', streamName: 'CSE/IT - B.Tech', contactNo: '9026814325' },
+  { registrationNumber: '12003332', name: 'Vijay Kumar Ojha', streamName: 'CSE/IT - B.Tech', contactNo: '7881152864' },
+  { registrationNumber: '12003354', name: 'Saurabh Agrawal', streamName: 'CSE/IT - B.Tech', contactNo: '6261451372' },
+  { registrationNumber: '12004127', name: 'Khateebul Islam', streamName: 'CSE/IT - B.Tech', contactNo: '8604465287' },
+  { registrationNumber: '12004440', name: 'Kashish Agarwal', streamName: 'CSE/IT - B.Tech', contactNo: '8077757195' },
+  { registrationNumber: '12005111', name: 'Alok Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7766981081' },
+  { registrationNumber: '12005474', name: 'Guneet Sethi', streamName: 'CSE/IT - B.Tech', contactNo: '9389621811' },
+  { registrationNumber: '12005491', name: 'Choppa Navadeep Kumar Reddy', streamName: 'CSE/IT - B.Tech', contactNo: '7337032136' },
+  { registrationNumber: '12005548', name: 'Shaik Lalu Basha', streamName: 'CSE/IT - B.Tech', contactNo: '8142038361' },
+  { registrationNumber: '12005816', name: 'Kadali Lakshmi Kanishka', streamName: 'CSE/IT - B.Tech', contactNo: '8374550868' },
+  { registrationNumber: '12006026', name: 'Roshan Kumar Prasad', streamName: 'ECE - B.Tech', contactNo: '7004811189' },
+  { registrationNumber: '12006105', name: 'Priyam Talukdar', streamName: 'CSE/IT - B.Tech', contactNo: '6000785315' },
+  { registrationNumber: '12006170', name: 'Shivpal Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '8115292411' },
+  { registrationNumber: '12006204', name: 'E Naveen', streamName: 'ECE - B.Tech', contactNo: '9701135440' },
+  { registrationNumber: '12006257', name: 'Manish Raghav', streamName: 'CSE/IT - B.Tech', contactNo: '7063948728' },
+  { registrationNumber: '12006474', name: 'Ambati Siva Krishna Reddy', streamName: 'CSE/IT - B.Tech', contactNo: '9347266756' },
+ 
+  { registrationNumber: '12007225', name: 'Naga Praneeth Kumar Chinni', streamName: 'CSE/IT - B.Tech', contactNo: '7386957811' },
+  { registrationNumber: '12007379', name: 'Jagjyot Singh', streamName: 'CSE/IT - B.Tech', contactNo: '9419919755' },
+  { registrationNumber: '12007468', name: 'Himanshu Vyas', streamName: 'CSE/IT - B.Tech', contactNo: '9334905299' },
+  { registrationNumber: '12008045', name: 'Poli Manohar', streamName: 'ECE - B.Tech', contactNo: '9652119068' },
+  { registrationNumber: '12008052', name: 'Yedoti Geetha Muneendra', streamName: 'CSE/IT - B.Tech', contactNo: '7995293729' },
+  { registrationNumber: '12008162', name: 'Ankit Kumar Bhardwaj', streamName: 'CSE/IT - B.Tech', contactNo: '8804874171' },
+  { registrationNumber: '12008227', name: 'Sahil Kumar', streamName: 'EEE - B.Tech', contactNo: '9302578754' },
+  { registrationNumber: '12008325', name: 'Tejeswee', streamName: 'CSE/IT - B.Tech', contactNo: '6202522039' },
+  { registrationNumber: '12008394', name: 'Pottumurti Gokul', streamName: 'CSE/IT - B.Tech', contactNo: '8143946599' },
+  { registrationNumber: '12008464', name: 'Mansi Srivastav', streamName: 'CSE/IT - B.Tech', contactNo: '9149233369' },
+  { registrationNumber: '12008514', name: 'Dheeraj Kasniya', streamName: 'CSE/IT - B.Tech', contactNo: '9784252483' },
+  { registrationNumber: '12008632', name: 'Pulagam Siva Sai Rama Kesava Reddy', streamName: 'CSE/IT - B.Tech', contactNo: '9182292033' },
+  { registrationNumber: '12008696', name: 'Arun Sharma', streamName: 'CSE/IT - B.Tech', contactNo: '9116016932' },
+  { registrationNumber: '12008756', name: 'Ashish Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '8340664019' },
+  { registrationNumber: '12008870', name: 'Kritika Singh', streamName: 'CSE/IT - B.Tech', contactNo: '9631745428' },
+  { registrationNumber: '12008938', name: 'Mallina Mohan Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '8919187744' },
+  { registrationNumber: '12009249', name: 'Shreetej Phule', streamName: 'CSE/IT - B.Tech', contactNo: '8698519100' },
+  { registrationNumber: '12010062', name: 'Sandeep Singh Negi', streamName: 'CSE/IT - B.Tech', contactNo: '7983322608' },
+  { registrationNumber: '12010090', name: 'Ayantika Mukherjee', streamName: 'CSE/IT - B.Tech', contactNo: '9101721833' },
+  { registrationNumber: '12010213', name: 'Manish Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '8840928019' },
+  { registrationNumber: '12010380', name: 'Nivash G', streamName: 'CSE/IT - B.Tech', contactNo: '8903946523' },
+  { registrationNumber: '12010542', name: 'Fadhil K', streamName: 'CSE/IT - B.Tech', contactNo: '9446688593' },
+  { registrationNumber: '12010571', name: 'Tammana Viswanadha Muralidhar', streamName: 'ECE - B.Tech', contactNo: '7981150433' },
+  { registrationNumber: '12010762', name: 'Chatterjee Ashesh Tarun', streamName: 'CSE/IT - B.Tech', contactNo: '9998384089' },
+  { registrationNumber: '12011366', name: 'Rishang Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '8081339284' },
+
+  { registrationNumber: '12011470', name: 'Anurag Dubey', streamName: 'CSE/IT - B.Tech', contactNo: '9140484999' },
+  { registrationNumber: '12011630', name: 'Prabhakar Vats', streamName: 'CSE/IT - B.Tech', contactNo: '8651960895' },
+  { registrationNumber: '12011674', name: 'Yogendra Kumar Dubey', streamName: 'CSE/IT - B.Tech', contactNo: '7460046176' },
+  { registrationNumber: '12011756', name: 'Ankush Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7348087834' },
+  { registrationNumber: '12011767', name: 'Ravi Shankar Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '6202941170' },
+  { registrationNumber: '12011868', name: 'Jai Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '8979978492' },
+  { registrationNumber: '12012071', name: 'Sahil Sharma', streamName: 'CSE/IT - B.Tech', contactNo: '9015034738' },
+  { registrationNumber: '12012095', name: 'Sriraj Bhogi', streamName: 'CSE/IT - B.Tech', contactNo: '6300743265' },
+  { registrationNumber: '12012115', name: 'Saurav Singh', streamName: 'CSE/IT - B.Tech', contactNo: '7510042278' },
+  { registrationNumber: '12012145', name: 'Pacha Sai Yaswanth', streamName: 'CSE/IT - B.Tech', contactNo: '7993824416' },
+  { registrationNumber: '12012280', name: 'Raksha Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '8115947937' },
+  { registrationNumber: '12012507', name: 'Anisha Joshi', streamName: 'CSE/IT - B.Tech', contactNo: '8968556806' },
+  { registrationNumber: '12012563', name: 'Abhijeet Ranjan Srivastava', streamName: 'CSE/IT - B.Tech', contactNo: '7091403819' },
+  { registrationNumber: '12012825', name: 'Suraj Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '9002991224' },
+  { registrationNumber: '12013262', name: 'Akash Singh', streamName: 'CSE/IT - B.Tech', contactNo: '7897249983' },
+  { registrationNumber: '12013309', name: 'Tejendra Chowdary Chaparala', streamName: 'CSE/IT - B.Tech', contactNo: '9246349247' },
+  { registrationNumber: '12013493', name: 'Shailesh Kumar Singh', streamName: 'CSE/IT - B.Tech', contactNo: '8563865458' },
+  { registrationNumber: '12013545', name: 'Jiwan Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7631052269' },
+  { registrationNumber: '12013975', name: 'Abhinav Kumar Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '9716771516' },
+
+  { registrationNumber: '12014221', name: 'Praveen Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '6201376794' },
+  { registrationNumber: '12014228', name: 'Sagar N Kolkar', streamName: 'CSE/IT - B.Tech', contactNo: '9353595317' },
+  { registrationNumber: '12014545', name: 'Bavanari Anil Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '9381320812' },
+  { registrationNumber: '12014550', name: 'MD Saif Akhtar', streamName: 'CSE/IT - B.Tech', contactNo: '6203302114' },
+  { registrationNumber: '12014594', name: 'Brojeshwar Barman', streamName: 'CSE/IT - B.Tech', contactNo: '9679973617' },
+  { registrationNumber: '12014632', name: 'Jay Yadav', streamName: 'CSE/IT - B.Tech', contactNo: '7088996234' },
+  { registrationNumber: '12014638', name: 'Aerra Maniraj', streamName: 'CSE/IT - B.Tech', contactNo: '9390599268' },
+  { registrationNumber: '12015085', name: 'Sourav Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '8228803881' },
+  { registrationNumber: '12015216', name: 'Ujjwal Rastogi', streamName: 'CSE/IT - B.Tech', contactNo: '9368131826' },
+  { registrationNumber: '12015286', name: 'Abhishek Tripathi', streamName: 'CSE/IT - B.Tech', contactNo: '9598656934' },
+  { registrationNumber: '12015292', name: 'Md Rashid Siddique', streamName: 'CSE/IT - B.Tech', contactNo: '9608517238' },
+  { registrationNumber: '12015394', name: 'Anthapu Dhanavardhan Reddy', streamName: 'CSE/IT - B.Tech', contactNo: '9392587417' },
+  { registrationNumber: '12015448', name: 'Pankaj Singh', streamName: 'CSE/IT - B.Tech', contactNo: '8449944024' },
+  { registrationNumber: '12015522', name: 'Ayushmaan Sharma', streamName: 'CSE/IT - B.Tech', contactNo: '8601077759' },
+  { registrationNumber: '12015623', name: 'Harsh Raj', streamName: 'CSE/IT - B.Tech', contactNo: '7250281902' },
+  { registrationNumber: '12015638', name: 'Ayushi Sharma', streamName: 'CSE/IT - B.Tech', contactNo: '9821934314' },
+  { registrationNumber: '12015766', name: 'Karan Thakur', streamName: 'CSE/IT - B.Tech', contactNo: '6283627069' },
+  { registrationNumber: '12015828', name: 'Shivam Pal', streamName: 'CSE/IT - B.Tech', contactNo: '9936485810' },
+  { registrationNumber: '12015858', name: 'Mohit Shekhar', streamName: 'CSE/IT - B.Tech', contactNo: '8186899345' },
+  { registrationNumber: '12015953', name: 'Preet', streamName: 'CSE/IT - B.Tech', contactNo: '7988487289' },
+  { registrationNumber: '12015977', name: 'Abhyanand Sharma', streamName: 'CSE/IT - B.Tech', contactNo: '6394091849' },
+  { registrationNumber: '12015998', name: 'Abantika Chandra', streamName: 'CSE/IT - B.Tech', contactNo: '8638021893' },
+  { registrationNumber: '12016021', name: 'Narendra Kumar Chouhan', streamName: 'CSE/IT - B.Tech', contactNo: '9064689255' },
+  
+  { registrationNumber: '12016027', name: 'Shaik Adil Ahamed', streamName: 'CSE/IT - B.Tech', contactNo: '8978089113' },
+  { registrationNumber: '12016035', name: 'Anurag Ranjan', streamName: 'CSE/IT - B.Tech', contactNo: '9166791183' },
+  { registrationNumber: '12016081', name: 'Harshin Mansoor', streamName: 'CSE/IT - B.Tech', contactNo: '9946338982' },
+  { registrationNumber: '12016118', name: 'Mukesh Choudhary', streamName: 'CSE/IT - B.Tech', contactNo: '7357510160' },
+  { registrationNumber: '12016229', name: 'Nitesh Kumar Sopra', streamName: 'CSE/IT - B.Tech', contactNo: '8278690208' },
+  { registrationNumber: '12016248', name: 'Harsh Saini', streamName: 'CSE/IT - B.Tech', contactNo: '6263274370' },
+  { registrationNumber: '12016331', name: 'Shailendra Singh', streamName: 'CSE/IT - B.Tech', contactNo: '7568829887' },
+  { registrationNumber: '12016336', name: 'Mohammad Suhel', streamName: 'CSE/IT - B.Tech', contactNo: '9005624842' },
+  { registrationNumber: '12016352', name: 'Challagiri Sravan Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '9515310506' },
+  { registrationNumber: '12016359', name: 'Ritesh Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '8539048905' },
+  { registrationNumber: '12016445', name: 'Dharmireddi Anand', streamName: 'CSE/IT - B.Tech', contactNo: '6281045500' },
+  { registrationNumber: '12016449', name: 'Krishan Pareek', streamName: 'CSE/IT - B.Tech', contactNo: '9079505141' },
+  { registrationNumber: '12016459', name: 'Sonu Gupta', streamName: 'CSE/IT - B.Tech', contactNo: '9060450638' },
+  { registrationNumber: '12016492', name: 'Vaishali', streamName: 'CSE/IT - B.Tech', contactNo: '7626890462' },
+  { registrationNumber: '12016684', name: 'Ritik Roushan', streamName: 'CSE/IT - B.Tech', contactNo: '8987013347' },
+  { registrationNumber: '12016714', name: 'Indla Bhargava Sai Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '8309811689' },
+  { registrationNumber: '12016772', name: 'Suryansh Gupta', streamName: 'CSE/IT - B.Tech', contactNo: '8423264550' },
+  { registrationNumber: '12016854', name: 'Kumar Abhinav', streamName: 'CSE/IT - B.Tech', contactNo: '9973157736' },
+  { registrationNumber: '12016943', name: 'Madem Guru Sujan Reddy', streamName: 'ECE - B.Tech', contactNo: '6281440794' },
+  { registrationNumber: '12017021', name: 'Ankit Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '6203562050' },
+  { registrationNumber: '12017443', name: 'Neeraj Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '6206249112' },
+
+  { registrationNumber: '12017527', name: 'Dhananjay Phole', streamName: 'CSE/IT - B.Tech', contactNo: '7888341564' },
+  { registrationNumber: '12017706', name: 'Vinay Pal', streamName: 'CSE/IT - B.Tech', contactNo: '9260920316' },
+  { registrationNumber: '12017808', name: 'Nikhil Saxena', streamName: 'CSE/IT - B.Tech', contactNo: '9870961684' },
+  { registrationNumber: '12017850', name: 'Yashika Patel', streamName: 'CSE/IT - B.Tech', contactNo: '8094154846' },
+  { registrationNumber: '12017908', name: 'Shashank Shekhar', streamName: 'CSE/IT - B.Tech', contactNo: '7375914253' },
+  { registrationNumber: '12017921', name: 'N Yashashwin', streamName: 'CSE/IT - B.Tech', contactNo: '8688384007' },
+  { registrationNumber: '12018007', name: 'Abburi Naveen Varma', streamName: 'CSE/IT - B.Tech', contactNo: '6305462814' },
+  { registrationNumber: '12018074', name: 'P Omkar', streamName: 'CSE/IT - B.Tech', contactNo: '9640955097' },
+  { registrationNumber: '12018076', name: 'Avirat Anant', streamName: 'CSE/IT - B.Tech', contactNo: '7004260332' },
+  { registrationNumber: '12018082', name: 'Gaurav Rai', streamName: 'CSE/IT - B.Tech', contactNo: '8896489972' },
+  { registrationNumber: '12018174', name: 'Dhiraj Tiwari', streamName: 'CSE/IT - B.Tech', contactNo: '7009922534' },
+  { registrationNumber: '12018202', name: 'Yadagiri Karthik', streamName: 'CSE/IT - B.Tech', contactNo: '9391451507' },
+  { registrationNumber: '12018401', name: 'Yasani Sai Brajesh', streamName: 'CSE/IT - B.Tech', contactNo: '8074993507' },
+  { registrationNumber: '12018409', name: 'Manthan Saxena', streamName: 'CSE/IT - B.Tech', contactNo: '6398749276' },
+  { registrationNumber: '12018424', name: 'Raj Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '6204425869' },
+  { registrationNumber: '12018433', name: 'Sarthak Mishra', streamName: 'CSE/IT - B.Tech', contactNo: '9690873328' },
+  { registrationNumber: '12018463', name: 'Ponugoti Hemanth', streamName: 'CSE/IT - B.Tech', contactNo: '9391129544' },
+  { registrationNumber: '12018588', name: 'Ritesh Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7463867823' },
+  { registrationNumber: '12018846', name: 'Shivam Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7903124074' },
+  { registrationNumber: '12018856', name: 'Kamlesh Chaudhary', streamName: 'CSE/IT - B.Tech', contactNo: '7388511232' },
+  { registrationNumber: '12018865', name: 'Saurabh Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7050554851' },
+  { registrationNumber: '12018953', name: 'Vangala Rajasekhar Reddy', streamName: 'CSE/IT - B.Tech', contactNo: '7330648117' },
+  { registrationNumber: '12018980', name: 'Eyunni Sri Krishna Bharadwaj', streamName: 'CSE/IT - B.Tech', contactNo: '8919631593' },
+  { registrationNumber: '12019028', name: 'Vivek Vishwakarma', streamName: 'CSE/IT - B.Tech', contactNo: '7084291497' },
+  { registrationNumber: '12019169', name: 'Prabhat Prasoon', streamName: 'CSE/IT - B.Tech', contactNo: '7733062610' },
+  { registrationNumber: '12019202', name: 'Satyam Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '9470743263' },
+  { registrationNumber: '12019251', name: 'Ankit Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '9123404640' },
+  { registrationNumber: '12019295', name: 'Vendikattu Naveen', streamName: 'CSE/IT - B.Tech', contactNo: '8008582719' },
+  { registrationNumber: '12019512', name: 'Likhit Varma M', streamName: 'CSE/IT - B.Tech', contactNo: '8897956136' },
+  { registrationNumber: '12020020', name: 'Gadi Rakesh', streamName: 'CSE/IT - B.Tech', contactNo: '9392786181' },
+  { registrationNumber: '12020216', name: 'Kaustubh Mishra', streamName: 'CSE/IT - B.Tech', contactNo: '9667271205' },
+  { registrationNumber: '12020401', name: 'Kammela Mithinesh Kumar', streamName: 'ECE - B.Tech', contactNo: '6281683993' },
+  { registrationNumber: '12020420', name: 'Syed Saleeq Adnan', streamName: 'CSE/IT - B.Tech', contactNo: '9182892604' },
+  { registrationNumber: '12020530', name: 'Kundan Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '9155480485' },
+  { registrationNumber: '12020632', name: 'Prakhar Tripathi', streamName: 'CSE/IT - B.Tech', contactNo: '7505250254' },
+
+  { registrationNumber: '12020686', name: 'Sanjay Kumar Swami', streamName: 'CSE/IT - B.Tech', contactNo: '6378688590' },
+  { registrationNumber: '12100141', name: 'Masoom Raza', streamName: 'CSE/IT - B.Tech', contactNo: '9135208188' },
+  { registrationNumber: '12101035', name: 'Ankit Somani', streamName: 'CSE/IT - B.Tech', contactNo: '8387813111' },
+  { registrationNumber: '12101154', name: 'Aryan Chand', streamName: 'CSE/IT - B.Tech', contactNo: '8929388248' },
+  { registrationNumber: '12101592', name: 'Mohd Afzal Raza', streamName: 'EEE - B.Tech', contactNo: '8409462914' },
+  { registrationNumber: '12103479', name: 'Suthar Lalitkumar Jagdish', streamName: 'CSE/IT - B.Tech', contactNo: '7420994651' },
+  { registrationNumber: '12104166', name: 'Tarun R K', streamName: 'CSE/IT - B.Tech', contactNo: '9380458504' },
+  { registrationNumber: '12106097', name: 'Nidhi Kumari', streamName: 'CSE/IT - B.Tech', contactNo: '7070970723' },
+  { registrationNumber: '12106366', name: 'Konakandla Sanjay Kumar', streamName: 'ECE - B.Tech', contactNo: '9515306769' },
+
+  { registrationNumber: '12112059', name: 'Maunak Das', streamName: 'CSE/IT - B.Tech', contactNo: '8131800189' },
+{ registrationNumber: '12113438', name: 'Akurathi Durga Prasad', streamName: 'ECE - B.Tech', contactNo: '7893924278' },
+{ registrationNumber: '12113774', name: 'Gandlapati Sunil Kumar Reddy', streamName: 'CSE/IT - B.Tech', contactNo: '9985258526' },
+{ registrationNumber: '12114496', name: 'Hulas Chandra Kumar', streamName: 'CSE/IT - B.Tech', contactNo: '7667539778' },
+{ registrationNumber: '12200089', name: 'Patchipulusu Sai Prasad', streamName: 'CAP - MCA', contactNo: '7780130434' },
+{ registrationNumber: '12200127', name: 'Aniket Rathour', streamName: 'CAP - MCA', contactNo: '8340293982' },
+{ registrationNumber: '12200129', name: 'Ranit Naha', streamName: 'CAP - MCA', contactNo: '8974294554' },
+{ registrationNumber: '12200798', name: 'Nadendla Sushmitha Chowdary', streamName: 'CAP - MCA', contactNo: '8328455245' },
+{ registrationNumber: '12200860', name: 'Kalash Verma', streamName: 'CAP - MCA', contactNo: '6392657952' },
+{ registrationNumber: '12200863', name: 'Shivam', streamName: 'CAP - MCA', contactNo: '8405966111' },
+{ registrationNumber: '12200890', name: 'Mandala Pavani', streamName: 'CAP - MCA', contactNo: '6301518819' },
+{ registrationNumber: '12201206', name: 'Ankush Kumar', streamName: 'CAP - MCA', contactNo: '9503304329' },
+{ registrationNumber: '12201232', name: 'Satyajeet Gaur', streamName: 'CAP - MCA', contactNo: '9877646853' },
+{ registrationNumber: '12201421', name: 'Hardeep Singh Khera', streamName: 'CAP - MCA', contactNo: '9129728509' },
+{ registrationNumber: '12201656', name: 'Anchal Priya Singh', streamName: 'CAP - MCA', contactNo: '6205220960' },
+{ registrationNumber: '12201734', name: 'Ananya Anand', streamName: 'CAP - MCA', contactNo: '9534210276' },
+{ registrationNumber: '12201979', name: 'Bibhukalyan Mohanty', streamName: 'CAP - MCA', contactNo: '6370386767' },
+{ registrationNumber: '12202277', name: 'Ankit Yadav', streamName: 'CAP - MCA', contactNo: '8718092913' },
+{ registrationNumber: '12202344', name: 'Shubham Kumar Roy', streamName: 'CAP - MCA', contactNo: '9097065809' },
+{ registrationNumber: '12202602', name: 'Mahammad Samim Ansari', streamName: 'CAP - MCA', contactNo: '6372963705' },
+{ registrationNumber: '12202841', name: 'Puli Sai Teja', streamName: 'CAP - MCA', contactNo: '6309375684' },
+{ registrationNumber: '12202920', name: 'Himanshu Kumar', streamName: 'CAP - MCA', contactNo: '8757472373' },
+{ registrationNumber: '12202937', name: 'Sandeep Kumar Ray', streamName: 'CAP - MCA', contactNo: '6206657472' },
+
+{ registrationNumber: '12202956', name: 'Pallavi Kumari', streamName: 'CAP - MCA', contactNo: '7050833435' },
+{ registrationNumber: '12203083', name: 'Duvvuru Edukondalu', streamName: 'CAP - MCA', contactNo: '6301450494' },
+{ registrationNumber: '12203145', name: 'Sumit Singh', streamName: 'CAP - MCA', contactNo: '7398780770' },
+{ registrationNumber: '12203917', name: 'Utsav Kumar Singh', streamName: 'CAP - MCA', contactNo: '8434419170' },
+{ registrationNumber: '12203960', name: 'Akash Pradhan', streamName: 'CAP - MCA', contactNo: '7326963565' },
+{ registrationNumber: '12204281', name: 'Nikhil Nitin Ranjan', streamName: 'CAP - MCA', contactNo: '9199440746' },
+{ registrationNumber: '12204286', name: 'Rayan Sangrar', streamName: 'CAP - MCA', contactNo: '8788458755' },
+{ registrationNumber: '12204374', name: 'Ritika Muskan', streamName: 'CAP - MCA', contactNo: '9122094188' },
+{ registrationNumber: '12204412', name: 'Bhavesh Soni', streamName: 'CAP - MCA', contactNo: '9079165109' },
+{ registrationNumber: '12204422', name: 'Shubham Prakash', streamName: 'CAP - MCA', contactNo: '9108371209' },
+{ registrationNumber: '12204429', name: 'Bontha Chakri', streamName: 'CAP - MCA', contactNo: '8106436244' },
+{ registrationNumber: '12204442', name: 'Deepak Kumar', streamName: 'CAP - MCA', contactNo: '7061576231' },
+{ registrationNumber: '12204453', name: 'Roshan Kumar', streamName: 'CAP - MCA', contactNo: '9798398040' },
+{ registrationNumber: '12204730', name: 'Suman Minz', streamName: 'CAP - MCA', contactNo: '9658388065' },
+{ registrationNumber: '12204843', name: 'Nadendla Tharun', streamName: 'CAP - MCA', contactNo: '6303221547' },
+{ registrationNumber: '12204918', name: 'Vimlesh Kumar Gupta', streamName: 'CAP - MCA', contactNo: '9118584347' },
+{ registrationNumber: '12204984', name: 'Bhavana', streamName: 'CAP - MCA', contactNo: '9399977026' },
+{ registrationNumber: '12205051', name: 'Vinit Rai', streamName: 'CAP - MCA', contactNo: '8228818221' },
+{ registrationNumber: '12205058', name: 'Nikhil Chauhan', streamName: 'CAP - MCA', contactNo: '7534053672' },
+{ registrationNumber: '12205098', name: 'Saurav Kumar', streamName: 'CAP - MCA', contactNo: '7970778234' },
+{ registrationNumber: '12205136', name: 'Kuldeep Kumar Gupta', streamName: 'CAP - MCA', contactNo: '7079525639' },
+
+{ registrationNumber: '12205149', name: 'Kosuri Veera Bhoga Vasanth Rayulu', streamName: 'CAP - MCA', contactNo: '8886987795' },
+{ registrationNumber: '12205222', name: 'Radha Krishna Jha', streamName: 'CAP - MCA', contactNo: '6202834363' },
+{ registrationNumber: '12205298', name: 'Praveen Kumar', streamName: 'CAP - MCA', contactNo: '6204110181' },
+{ registrationNumber: '12205299', name: 'Nitin Singh', streamName: 'CAP - MCA', contactNo: '7988582378' },
+{ registrationNumber: '12205407', name: 'Annapurna Kumari', streamName: 'CAP - MCA', contactNo: '7634893580' },
+{ registrationNumber: '12206274', name: 'Yash Puri', streamName: 'CAP - MCA', contactNo: '8793831577' },
+{ registrationNumber: '12206553', name: 'Satyam Sen', streamName: 'CAP - MCA', contactNo: '8923334740' },
+{ registrationNumber: '12207266', name: 'Sahil', streamName: 'CAP - MCA', contactNo: '7497099665' },
+{ registrationNumber: '12207313', name: 'Himanshu Singh', streamName: 'CAP - MCA', contactNo: '9608530317' },
+{ registrationNumber: '12207587', name: 'Irshad', streamName: 'CAP - MCA', contactNo: '9219160301' },
+{ registrationNumber: '12208190', name: 'Abhay Pandey', streamName: 'CAP - MCA', contactNo: '8849925936' },
+{ registrationNumber: '12208221', name: 'Himanshu Kumar', streamName: 'CAP - MCA', contactNo: '9534596019' },
+{ registrationNumber: '12208255', name: 'Prakhar Katiyar', streamName: 'CAP - MCA', contactNo: '7985996046' },
+{ registrationNumber: '12208453', name: 'Kunal Kumar', streamName: 'CAP - MCA', contactNo: '8579978541' },
+{ registrationNumber: '12208466', name: 'Ashutosh Singh', streamName: 'CAP - MCA', contactNo: '6392857894' },
+{ registrationNumber: '12208604', name: 'Dinanshu Yadav', streamName: 'CAP - MCA', contactNo: '9634698999' },
+{ registrationNumber: '12208702', name: 'Rishav Kumar', streamName: 'CAP - MCA', contactNo: '8651660347' },
+{ registrationNumber: '12208740', name: 'Abhishek Kumar Gupta', streamName: 'CAP - MCA', contactNo: '9264405601' },
+{ registrationNumber: '12209123', name: 'Sukhdeep Kaur', streamName: 'CAP - MCA', contactNo: '9914108376' },
+{ registrationNumber: '12209195', name: 'Pratham Prateek', streamName: 'CAP - MCA', contactNo: '8305633832' },
+{ registrationNumber: '12209278', name: 'Ayan Mondal', streamName: 'CAP - MCA', contactNo: '8159992053' },
+{ registrationNumber: '12209387', name: 'Nishita Jangid', streamName: 'CAP - MCA', contactNo: '7340320729' },
+{ registrationNumber: '12209937', name: 'Rajan Kumar', streamName: 'CAP - MCA', contactNo: '7970935681' },
+{ registrationNumber: '12210273', name: 'Beauti Kumari', streamName: 'CAP - MCA', contactNo: '7061334751' },
+{ registrationNumber: '12210482', name: 'Chippala Naveen', streamName: 'CAP - MCA', contactNo: '7981423497' },
+{ registrationNumber: '12210602', name: 'Shubham Kumar', streamName: 'CAP - MCA', contactNo: '9525660512' },
+{ registrationNumber: '12210657', name: 'Suraj Kumar', streamName: 'CAP - MCA', contactNo: '8210513028' },
+{ registrationNumber: '12210746', name: 'Vivek Singh', streamName: 'CAP - MCA', contactNo: '9838361636' },
+{ registrationNumber: '12210841', name: 'Raj Kumar Rajbhar', streamName: 'CAP - MCA', contactNo: '9954345473' },
+{ registrationNumber: '12210900', name: 'Neeraj Kumar', streamName: 'CAP - MCA', contactNo: '8825384544' },
+{ registrationNumber: '12211064', name: 'Jyoty Bhushan Sinha', streamName: 'CAP - MCA', contactNo: '7050735530' },
+{ registrationNumber: '12211084', name: 'Kumari Amisha', streamName: 'CAP - MCA', contactNo: '9835945889' },
+{ registrationNumber: '12211321', name: 'Goutam Chaudhary', streamName: 'CAP - MCA', contactNo: '9977671343' },
+{ registrationNumber: '12211370', name: 'Md Tauseef Arif', streamName: 'CAP - MCA', contactNo: '8906134889' },
+{ registrationNumber: '12211435', name: 'Sarang Khajuria', streamName: 'CAP - MCA', contactNo: '9086003297' },
+{ registrationNumber: '12211496', name: 'Yara Ankitha', streamName: 'CAP - MCA', contactNo: '9110714537' },
+{ registrationNumber: '12211952', name: 'Saransh Shivpuri', streamName: 'CAP - MCA', contactNo: '9796883531' },
+{ registrationNumber: '12211966', name: 'Kakarla Sai Vamsi', streamName: 'CAP - MCA', contactNo: '9542128068' },
+{ registrationNumber: '12212017', name: 'Ambrishnath Mishra', streamName: 'CAP - MCA', contactNo: '6307865252' },
+{ registrationNumber: '12212046', name: 'Manish Kumar', streamName: 'CAP - MCA', contactNo: '7909076812' },
+{ registrationNumber: '12212063', name: 'Jubilant K J', streamName: 'CAP - MCA', contactNo: '9544393978' },
+{ registrationNumber: '12212200', name: 'Aman Chauhan', streamName: 'CAP - MCA', contactNo: '9058529199' },
+{ registrationNumber: '12212256', name: 'Satyam Mishra', streamName: 'CAP - MCA', contactNo: '8604382097' },
+{ registrationNumber: '12212534', name: 'G Sai Kiran', streamName: 'CAP - MCA', contactNo: '9133157045' },
+
+{ registrationNumber: '12212723', name: 'Samrat Mukherjee', streamName: 'CAP - MCA', contactNo: '7004936302' },
+{ registrationNumber: '12212763', name: 'Ritik Kumar Mukhiya', streamName: 'CAP - MCA', contactNo: '9570467417' },
+{ registrationNumber: '12212766', name: 'Firoj Ahamad', streamName: 'CAP - MCA', contactNo: '8858415479' },
+{ registrationNumber: '12213281', name: 'Rahul Kumar', streamName: 'CAP - MCA', contactNo: '6202706253' },
+{ registrationNumber: '12213873', name: 'Gourav Barman', streamName: 'CAP - MCA', contactNo: '8269964947' },
+{ registrationNumber: '12213885', name: 'Amartya Sharma', streamName: 'CAP - MCA', contactNo: '7983698328' },
+{ registrationNumber: '12213915', name: 'Adarsh Chaurasia', streamName: 'CAP - MCA', contactNo: '9140066101' },
+{ registrationNumber: '12213958', name: 'Sushant Kumar', streamName: 'CAP - MCA', contactNo: '7895782710' },
+{ registrationNumber: '12214314', name: 'Aniket Kumar', streamName: 'CAP - MCA', contactNo: '6207022139' },
+{ registrationNumber: '12214474', name: 'Bipin Kumar', streamName: 'CAP - MCA', contactNo: '9304400149' },
+{ registrationNumber: '12214560', name: 'Anjali Kumari', streamName: 'CAP - MCA', contactNo: '9117148878' },
+{ registrationNumber: '12214590', name: 'Rishabh Kumar Giri', streamName: 'CAP - MCA', contactNo: '6204574840' },
+{ registrationNumber: '12214792', name: 'Ashutosh Kumar Chauhan', streamName: 'CAP - MCA', contactNo: '6203734467' },
+{ registrationNumber: '12214948', name: 'Diwakar Giri', streamName: 'CAP - MCA', contactNo: '8235303183' },
+{ registrationNumber: '12214975', name: 'Aditya Kumar', streamName: 'CAP - MCA', contactNo: '7295032050' },
+{ registrationNumber: '12215146', name: 'Shyam Babu Jaiswal', streamName: 'CAP - MCA', contactNo: '8617695716' },
+{ registrationNumber: '12215441', name: 'Abhishek', streamName: 'CAP - MCA', contactNo: '8360034394' },
+{ registrationNumber: '12216155', name: 'Deepak Kumar', streamName: 'CAP - MCA', contactNo: '8825329154' },
+{ registrationNumber: '12216166', name: 'Sahil Rana', streamName: 'CAP - MCA', contactNo: '6283728647' },
+{ registrationNumber: '12216234', name: 'Bhawana Malakar', streamName: 'CAP - MCA', contactNo: '8824960912' },
+{ registrationNumber: '12216467', name: 'Reema', streamName: 'CAP - MCA', contactNo: '8168398795' },
+{ registrationNumber: '12217683', name: 'Ranjeeta Chatterjee', streamName: 'CAP - MCA', contactNo: '7903740344' },
+{ registrationNumber: '12217706', name: 'Ravi Anand', streamName: 'CAP - MCA', contactNo: '9162745761' },
+{ registrationNumber: '12217833', name: 'Ayush Raj', streamName: 'CAP - MCA', contactNo: '8651330214' },
+{ registrationNumber: '12218028', name: 'MRADUL PARMAR', streamName: 'CAP - MCA', contactNo: '7900369550' },
+{ registrationNumber: '12218170', name: 'Gulshan Kumar', streamName: 'CAP - MCA', contactNo: '6283304667' },
+{ registrationNumber: '12218354', name: 'Ashish Kumar', streamName: 'CAP - MCA', contactNo: '9155140902' },
+{ registrationNumber: '12218574', name: 'Jitesh', streamName: 'CAP - MCA', contactNo: '9467061490' },
+{ registrationNumber: '12218905', name: 'Atul Singh', streamName: 'CAP - MCA', contactNo: '7355742835' },
+{ registrationNumber: '12218931', name: 'Puneet Sharma', streamName: 'CAP - MCA', contactNo: '8871326599' },
+{ registrationNumber: '12219049', name: 'Aditya Rupendra Singh', streamName: 'CAP - MCA', contactNo: '8238510762' },
+{ registrationNumber: '12219257', name: 'Gaurav Raj', streamName: 'CAP - MCA', contactNo: '9693936467' },
+{ registrationNumber: '12219362', name: 'Pratik Raj', streamName: 'CAP - MCA', contactNo: '9877084745' },
+{ registrationNumber: '12219414', name: 'Vivek Mandal', streamName: 'CAP - MCA', contactNo: '8340663483' },
+{ registrationNumber: '12219453', name: 'RITIK PAL', streamName: 'CAP - MCA', contactNo: '9386379662' },
+{ registrationNumber: '12219508', name: 'Amandeep Gautam', streamName: 'CAP - MCA', contactNo: '8604123864' },
+{ registrationNumber: '12219519', name: 'Abhishek Verma', streamName: 'CAP - MCA', contactNo: '8563959409' },
+{ registrationNumber: '12219667', name: 'Abid Khan', streamName: 'CAP - MCA', contactNo: '9015288700' },
+{ registrationNumber: '12219675', name: 'Shalini Chauhan', streamName: 'CAP - MCA', contactNo: '8851920626' },
+{ registrationNumber: '12219816', name: 'Ravi Shankar Mahto', streamName: 'CAP - MCA', contactNo: '8340277934' },
+{ registrationNumber: '12219823', name: 'Suraj Kumar', streamName: 'CAP - MCA', contactNo: '7992451823' },
+{ registrationNumber: '12219871', name: 'Pranav Kumar', streamName: 'CAP - MCA', contactNo: '8789334733' },
+{ registrationNumber: '12219901', name: 'Pedavegi Ramesh', streamName: 'CAP - MCA', contactNo: '9700705529' },
+
+{ registrationNumber: '12219958', name: 'Priyanshu Raj', streamName: 'CAP - MCA', contactNo: '6203544909' },
+{ registrationNumber: '12220265', name: 'Avinash Kumar', streamName: 'CAP - MCA', contactNo: '9835193378' },
+{ registrationNumber: '12220319', name: 'Rajeev Kumar', streamName: 'CAP - MCA', contactNo: '7667600541' },
+{ registrationNumber: '12220325', name: 'Pritam Mukati', streamName: 'CAP - MCA', contactNo: '7049413588' },
+{ registrationNumber: '12220366', name: 'Komal', streamName: 'CAP - MCA', contactNo: '8580407417' },
+{ registrationNumber: '12220402', name: 'Pendyala Swamy Vivekananda Ganesh', streamName: 'CAP - MCA', contactNo: '6281416456' },
+{ registrationNumber: '12220600', name: 'Puja Kumari', streamName: 'CAP - MCA', contactNo: '7250700666' },
+{ registrationNumber: '12220642', name: 'Abhishek Kumar Bhagat', streamName: 'CAP - MCA', contactNo: '9576976230' },
+{ registrationNumber: '12220683', name: 'Abhishek Prakash', streamName: 'CAP - MCA', contactNo: '6201021246' },
+{ registrationNumber: '12220685', name: 'Dheeraj Kumar', streamName: 'CAP - MCA', contactNo: '7488550963' },
+{ registrationNumber: '12220699', name: 'Nitesh Yadav', streamName: 'CAP - MCA', contactNo: '9795559286' },
+{ registrationNumber: '12220927', name: 'Bathini Rajendhar', streamName: 'CAP - MCA', contactNo: '9704256778' },
+{ registrationNumber: '12220965', name: 'Rohit Gupta', streamName: 'CAP - MCA', contactNo: '8650960313' },
+{ registrationNumber: '12221130', name: 'Abhinav', streamName: 'CAP - MCA', contactNo: '8544735447' },
+{ registrationNumber: '12221279', name: 'Shivam Kumar Jha', streamName: 'CAP - MCA', contactNo: '9117728915' },
+{ registrationNumber: '12221465', name: 'Anshu Gupta', streamName: 'CAP - MCA', contactNo: '9305933196' },
+{ registrationNumber: '12221627', name: 'Nitesh Kumar Singh', streamName: 'CAP - MCA', contactNo: '8789709550' },
+{ registrationNumber: '12222112', name: 'Prajna Jain', streamName: 'CAP - MCA', contactNo: '9501053270' },
+{ registrationNumber: '12222349', name: 'Prasad Sagar Hiralal', streamName: 'CAP - MCA', contactNo: '9834284980' },
+{ registrationNumber: '12222696', name: 'Mehul Kumar', streamName: 'CAP - MCA', contactNo: '7992497310' },
+{ registrationNumber: '12222714', name: 'Ankit Shakya', streamName: 'CAP - MCA', contactNo: '8630352371' },
+{ registrationNumber: '12222820', name: 'Chimadage Amol Omnath', streamName: 'CAP - MCA', contactNo: '7517961224' },
+{ registrationNumber: '12223008', name: 'Shekhar Kumar Verma', streamName: 'CAP - MCA', contactNo: '7870092554' },
+{ registrationNumber: '12223180', name: 'Deepu Kumar Saw', streamName: 'CAP - MCA', contactNo: '6203512574' },
+{ registrationNumber: '12223392', name: 'Neha', streamName: 'CAP - MCA', contactNo: '7759037245' },
+{ registrationNumber: '12223423', name: 'Ankit Kumar', streamName: 'CAP - MCA', contactNo: '7903335271' },
+{ registrationNumber: '12223484', name: 'Anmol Gupta', streamName: 'CAP - MCA', contactNo: '9260958700' },
+{ registrationNumber: '12223960', name: 'Ishant Pandey', streamName: 'CAP - MCA', contactNo: '9695532201' },
+{ registrationNumber: '12224192', name: 'Ravi Ranjan', streamName: 'CAP - MCA', contactNo: '8789451758' },
+{ registrationNumber: '12224208', name: 'Lavakush Gour', streamName: 'CAP - MCA', contactNo: '9963834605' },
+{ registrationNumber: '12224239', name: 'Sunil Kumar Yadav', streamName: 'CAP - MCA', contactNo: '9511256369' },
+
+{ registrationNumber: '12213469', name: 'Abhishek Kumar Pachori', streamName: 'CAP - MCA', contactNo: '9634544901' },
+{ registrationNumber: '12211411', name: 'Chandan Kumar Chaudhary', streamName: 'CAP - MCA', contactNo: '9006266111' },
+{ registrationNumber: '12208241', name: 'Danish Khan', streamName: 'CAP - MCA', contactNo: '7891040870' },
+{ registrationNumber: '12209792', name: 'Sahil Sharma', streamName: 'CAP - MCA', contactNo: '6230442590' },
+{ registrationNumber: '12208008', name: 'Ramesh Kumar', streamName: 'CAP - MCA', contactNo: '9304793669' },
+
+];
+   
+ 
+
+        // Function to display contacts in the list
+        function displayContacts(contactsToShow) {
+            const contactList = document.getElementById('contactList');
+            const noResultsMessage = document.getElementById('noResults');
+
+            contactList.innerHTML = '';
+            noResultsMessage.style.display = 'none';
+
+            if (contactsToShow.length === 0) {
+                noResultsMessage.style.display = 'block';
+            } else {
+                contactsToShow.forEach(contact => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'contactItem';
+                    listItem.textContent = `${contact.name} - ${contact.registrationNumber} - ${contact.contactNo} -  ${contact.streamName}`;
+                    contactList.appendChild(listItem);
+                });
+            }
+        }
+
+        // Function to search contacts based on registration number
+        function searchContacts() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.toUpperCase();
+
+            const filteredContacts = contacts.filter(contact =>
+                contact.registrationNumber.toUpperCase().includes(searchTerm)
+            );
+
+            displayContacts(filteredContacts);
+        }
+    </script>
+</body>
+</html>
